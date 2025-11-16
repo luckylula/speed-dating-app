@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  nombre        String?
+  apellidos     String?
+  rol           String    @default("usuario")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  participante  Participante?
+}
+
+model Participante {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  nombre        String
+  apellidos     String
+  edad          Int
+  genero        String
+  residencia    String?
+  telefono      String?
+  email         String
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  respuestas    Respuesta?
+  matchesComoA  Match[]   @relation("MatchParticipanteA")
+  matchesComoB  Match[]   @relation("MatchParticipanteB")
+  eventosInscritos EventoParticipante[]
+}
+
+model Evento {
+  id            String    @id @default(cuid())
+  nombre        String
+  descripcion   String?
+  fecha         DateTime
+  lugar         String
+  maxParticipantes Int    @default(50)
+  estado        String    @default("activo")
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  participantes EventoParticipante[]
+  matches       Match[]
+}
+
+model EventoParticipante {
+  id              String    @id @default(cuid())
+  eventoId        String
+  participanteId  String
+  
+  evento          Evento    @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  participante    Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  
+  estadoPago      String    @default("pendiente")
+  fechaInscripcion DateTime @default(now())
+  
+  @@unique([eventoId, participanteId])
+}
+
+model Respuesta {
+  id              String    @id @default(cuid())
+  participanteId  String    @unique
+  participante    Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  
+  // Preguntas obligatorias
+  franjaEdad      String[]
+  sexualidad      String
+  
+  // Estilo de vida
+  gruposIdentificacion String[]
+  deportes        String[]
+  fumador         String
+  formaVestir     String[]
+  tipoCasa        String[]
+  
+  // Objetivos relacionales
+  queBuscas       String[]
+  hijos           String[]
+  valores         String[]
+  visionFuturo    String[]
+  
+  // Compatibilidad física/sexual
+  atraccionFisica String[]
+  importanciaSexo String[]
+  queValoras      String[]
+  
+  // Intelectual/Cultural
+  formacion       String[]
+  idiomas         String[]
+  visionVida      String
+  
+  // Factores de descarte
+  factoresDescarte String[]
+  opinionDrogas   String
+  opinionAlcohol  String
+  
+  // Otros
+  suenos          String[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Match {
+  id              String    @id @default(cuid())
+  eventoId        String
+  evento          Evento    @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  
+  participanteAId String
+  participanteBId String
+  participanteA   Participante @relation("MatchParticipanteA", fields: [participanteAId], references: [id], onDelete: Cascade)
+  participanteB   Participante @relation("MatchParticipanteB", fields: [participanteBId], references: [id], onDelete: Cascade)
+  
+  porcentajeTotal Int
+  
+  // Desglose por categorías
+  estiloVida      Int
+  objetivos       Int
+  fisica          Int
+  intelectual     Int
+  descarte        Int
+  
+  estado          String    @default("pendiente")
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([eventoId, participanteAId, participanteBId])
+}
