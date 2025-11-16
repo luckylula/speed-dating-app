@@ -12,46 +12,55 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log("🔍 Intentando login con:", credentials?.email)
-        
-        if (!credentials?.email || !credentials?.password) {
-          console.log("❌ Credenciales incompletas")
-          throw new Error("Credenciales incompletas")
-        }
+        try {
+          console.log("🔍 Intentando login con:", credentials?.email)
+          
+          if (!credentials?.email || !credentials?.password) {
+            console.log("❌ Credenciales incompletas")
+            throw new Error("Credenciales incompletas")
+          }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        })
+          console.log("🔌 Conectando a Prisma...")
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email }
+          })
+          console.log("✅ Consulta Prisma completada")
 
-        console.log("👤 Usuario encontrado:", user ? "SÍ" : "NO")
-        console.log("📧 Email buscado:", credentials.email)
-        
-        if (!user) {
-          console.log("❌ Usuario no encontrado en BD")
-          throw new Error("Usuario no encontrado")
-        }
+          console.log("👤 Usuario encontrado:", user ? "SÍ" : "NO")
+          console.log("📧 Email buscado:", credentials.email)
+          
+          if (!user) {
+            console.log("❌ Usuario no encontrado en BD")
+            throw new Error("Usuario no encontrado")
+          }
 
-        console.log("🔐 Hash en BD:", user.password.substring(0, 20) + "...")
-        
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
+          console.log("🔐 Hash en BD:", user.password.substring(0, 20) + "...")
+          
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
 
-        console.log("🔑 Password válido:", isPasswordValid)
+          console.log("🔑 Password válido:", isPasswordValid)
 
-        if (!isPasswordValid) {
-          console.log("❌ Contraseña incorrecta")
-          throw new Error("Contraseña incorrecta")
-        }
+          if (!isPasswordValid) {
+            console.log("❌ Contraseña incorrecta")
+            throw new Error("Contraseña incorrecta")
+          }
 
-        console.log("✅ Login exitoso para:", user.email)
-        
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.nombre,
-          rol: user.rol
+          console.log("✅ Login exitoso para:", user.email)
+          
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.nombre,
+            rol: user.rol
+          }
+        } catch (error) {
+          console.error("💥 ERROR COMPLETO EN AUTH:", error)
+          console.error("💥 ERROR MENSAJE:", error instanceof Error ? error.message : String(error))
+          console.error("💥 ERROR STACK:", error instanceof Error ? error.stack : 'No stack')
+          return null
         }
       }
     })
