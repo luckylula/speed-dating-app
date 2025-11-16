@@ -12,7 +12,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        console.log("🔍 Intentando login con:", credentials?.email)
+        
         if (!credentials?.email || !credentials?.password) {
+          console.log("❌ Credenciales incompletas")
           throw new Error("Credenciales incompletas")
         }
 
@@ -20,19 +23,30 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         })
 
+        console.log("👤 Usuario encontrado:", user ? "SÍ" : "NO")
+        console.log("📧 Email buscado:", credentials.email)
+        
         if (!user) {
+          console.log("❌ Usuario no encontrado en BD")
           throw new Error("Usuario no encontrado")
         }
 
+        console.log("🔐 Hash en BD:", user.password.substring(0, 20) + "...")
+        
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
         )
 
+        console.log("🔑 Password válido:", isPasswordValid)
+
         if (!isPasswordValid) {
+          console.log("❌ Contraseña incorrecta")
           throw new Error("Contraseña incorrecta")
         }
 
+        console.log("✅ Login exitoso para:", user.email)
+        
         return {
           id: user.id,
           email: user.email,
@@ -65,7 +79,8 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: true
 }
 
 const handler = NextAuth(authOptions)
