@@ -52,17 +52,16 @@ export async function POST(request: Request) {
     // Crear el participante
     const participante = await prisma.participante.create({
       data: {
-        userId: userId,
+        userId: userId || undefined,
         nombre: body.nombre,
         apellidos: body.apellidos,
         edad: parseInt(body.edad),
         genero: body.genero,
-        residencia: body.residencia || "",
-        telefono: body.telefono || "",
+        residencia: body.residencia || undefined,
+        telefono: body.telefono || undefined,
         email: body.email
       }
     })
-
     // Crear las respuestas vinculadas al participante
     const respuesta = await prisma.respuesta.create({
       data: {
