@@ -51,12 +51,22 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
+    callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.rol = (user as any).rol
+        token.id = user.id
+      }
+      return token
+    },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).rol = token.rol
-        (session.user as any).id = token.id
+        (session.user as any).rol = token.rol as string
+        (session.user as any).id = token.id as string
       }
       return session
+    }
+  },
     }
   },
   pages: {
