@@ -49,16 +49,24 @@ export async function POST(request: Request) {
       userId = user.id
     }
 
+    // Validar que tenemos userId
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Error al crear usuario" },
+        { status: 500 }
+      )
+    }
+
     // Crear el participante
     const participante = await prisma.participante.create({
       data: {
-        userId: userId || undefined,
+        userId: userId,
         nombre: body.nombre,
         apellidos: body.apellidos,
         edad: parseInt(body.edad),
         genero: body.genero,
-        residencia: body.residencia || undefined,
-        telefono: body.telefono || undefined,
+        residencia: body.residencia || null,
+        telefono: body.telefono || null,
         email: body.email
       }
     })
