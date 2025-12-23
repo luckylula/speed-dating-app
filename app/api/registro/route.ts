@@ -137,10 +137,4 @@ export async function POST(request: Request) {
     )
   }
 }
-```
 
-**5. Scroll abajo**
-
-**6. En "Commit message" escribe:**
-```
-Fix: Auto-create user on registration
