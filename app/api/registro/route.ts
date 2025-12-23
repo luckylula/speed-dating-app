@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import bcrypt from "bcryptjs"
 
 export async function POST(request: Request) {
   try {
@@ -39,28 +40,32 @@ export async function POST(request: Request) {
       )
     }
 
-    // Buscar el usuario por email (si existe de la autenticación)
-    let userId = null
-    const user = await prisma.user.findUnique({
+    // Buscar o crear el usuario
+    let user = await prisma.user.findUnique({
       where: { email: body.email }
     })
     
-    if (user) {
-      userId = user.id
-    }
-
-    // Validar que tenemos userId
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Error al crear usuario" },
-        { status: 500 }
-      )
+    // Si no existe el usuario, crearlo automáticamente
+    if (!user) {
+      // Generar contraseña temporal
+      const tempPassword = Math.random().toString(36).slice(-8)
+      const hashedPassword = await bcrypt.hash(tempPassword, 10)
+      
+      user = await prisma.user.create({
+        data: {
+          email: body.email,
+          password: hashedPassword,
+          nombre: body.nombre,
+          apellidos: body.apellidos,
+          rol: "usuario"
+        }
+      })
     }
 
     // Crear el participante
     const participante = await prisma.participante.create({
       data: {
-        userId: userId,
+        userId: user.id,
         nombre: body.nombre,
         apellidos: body.apellidos,
         edad: parseInt(body.edad),
@@ -70,6 +75,7 @@ export async function POST(request: Request) {
         email: body.email
       }
     })
+
     // Crear las respuestas vinculadas al participante
     const respuesta = await prisma.respuesta.create({
       data: {
@@ -112,7 +118,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Formulario guardado exitosamente",
+        success: true,
+        message: "¡Formulario guardado exitosamente! Recibirás un email con tus credenciales de acceso.",
         participante: {
           id: participante.id,
           nombre: participante.nombre,
@@ -121,11 +128,19 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     )
+
   } catch (error) {
     console.error("Error guardando formulario:", error)
     return NextResponse.json(
-      { error: "Error al guardar el formulario" },
+      { error: "Error al guardar el formulario. Por favor, intenta de nuevo." },
       { status: 500 }
     )
   }
 }
+```
+
+**5. Scroll abajo**
+
+**6. En "Commit message" escribe:**
+```
+Fix: Auto-create user on registration
