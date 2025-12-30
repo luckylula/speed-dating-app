@@ -84,6 +84,23 @@ export async function POST() {
 
     const matches = []
     let totalCompatibilidad = 0
+    // Crear o encontrar evento de prueba
+let eventoTest = await prisma.evento.findFirst({
+  where: { nombre: "Test Algoritmo" }
+})
+
+if (!eventoTest) {
+  eventoTest = await prisma.evento.create({
+    data: {
+      nombre: "Test Algoritmo",
+      descripcion: "Evento de prueba para validar el algoritmo de matching",
+      fecha: new Date(),
+      lugar: "Virtual",
+      maxParticipantes: 100,
+      estado: "test"
+    }
+  })
+}
 
     // Calcular matches entre todos los pares
     for (let i = 0; i < participantes.length; i++) {
@@ -106,7 +123,7 @@ const compatibilidad = calcularCompatibilidad(
         // Crear el match en la base de datos
         const match = await prisma.match.create({
           data: {
-            eventoId: "test-event",
+            eventoId: eventoTest.id,
             participanteAId: partA.id,
             participanteBId: partB.id,
             porcentajeTotal: compatibilidad.porcentajeTotal,
