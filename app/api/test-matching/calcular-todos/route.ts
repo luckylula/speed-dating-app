@@ -91,10 +91,10 @@ export async function POST() {
     const partA = participantes[i]
     const partB = participantes[j]
     
-    const respuestaA = partA.respuestas?.[0]
-    const respuestaB = partB.respuestas?.[0]
+    const respuestaA = partA.respuestas
+    const respuestaB = partB.respuestas
 
-    if (!respuestaA || !respuestaB) continue
+if (!respuestaA || !respuestaB) continue
 
 const compatibilidad = calcularCompatibilidad(
   respuestaA,
