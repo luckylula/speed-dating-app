@@ -87,11 +87,14 @@ export async function POST() {
 
     // Calcular matches entre todos los pares
     for (let i = 0; i < participantes.length; i++) {
-      for (let j = i + 1; j < participantes.length; j++) {
-        const respuestaA = partA.respuestas?.[0]
-const respuestaB = partB.respuestas?.[0]
+  for (let j = i + 1; j < participantes.length; j++) {
+    const partA = participantes[i]
+    const partB = participantes[j]
+    
+    const respuestaA = partA.respuestas?.[0]
+    const respuestaB = partB.respuestas?.[0]
 
-if (!respuestaA || !respuestaB) continue
+    if (!respuestaA || !respuestaB) continue
 
 const compatibilidad = calcularCompatibilidad(
   respuestaA,
