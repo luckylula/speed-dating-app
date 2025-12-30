@@ -310,7 +310,7 @@ export default function TestMatchingPage() {
                       <div className="flex-1 bg-gray-200 rounded-full h-8 overflow-hidden">
                         <div 
                           className="bg-gradient-to-r from-pink-400 to-purple-500 h-full flex items-center px-3 text-white font-semibold"
-                          style={{ width: `${(cantidad / resultado.matches.length) * 100}%` }}
+                         style={{ width: `${(cantidad / (resultado.matches?.length || 1)) * 100}%` }}
                         >
                           {cantidad > 0 && `${cantidad} matches`}
                         </div>
