@@ -25,7 +25,6 @@ export const authOptions: NextAuthOptions = {
             where: { email: credentials.email }
           })
           console.log("✅ Consulta Prisma completada")
-
           console.log("👤 Usuario encontrado:", user ? "SÍ" : "NO")
           console.log("📧 Email buscado:", credentials.email)
           
@@ -40,7 +39,6 @@ export const authOptions: NextAuthOptions = {
             credentials.password,
             user.password
           )
-
           console.log("🔑 Password válido:", isPasswordValid)
 
           if (!isPasswordValid) {
@@ -66,31 +64,36 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-  async jwt({ token, user }) {
-    if (user) {
-      token.rol = (user as any).rol
-      token.id = user.id
+    async jwt({ token, user }) {
+      if (user) {
+        token.rol = (user as any).rol
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).rol = token.rol as string
+        (session.user as any).id = token.id as string
+      }
+      return session
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url
+      return `${baseUrl}/admin`
     }
-    return token
   },
-  async session({ session, token }) {
-    if (session.user) {
-      (session.user as any).rol = token.rol as string
-      (session.user as any).id = token.id as string
-    }
-    return session
+  pages: {
+    signIn: "/login"
   },
-  async redirect({ url, baseUrl }) {
-    // Si ya está en una página específica, mantenerlo ahí
-    if (url.startsWith(baseUrl)) return url
-    
-    // Redirigir a admin si el rol es admin
-    if (url.includes('rol=admin')) return `${baseUrl}/admin`
-    
-    // Por defecto ir a admin (asumiendo que solo admins hacen login)
-    return `${baseUrl}/admin`
-  }
-},
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: true
+}
+
 const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
