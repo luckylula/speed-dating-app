@@ -71,7 +71,7 @@ export async function POST() {
     // Obtener todos los participantes con sus respuestas
     const participantes = await prisma.participante.findMany({
   include: {
-    respuestas: true
+    respuesta: true
   }
 })
 
@@ -91,13 +91,12 @@ export async function POST() {
         const partA = participantes[i]
         const partB = participantes[j]
 
-       if (!partA.respuestas || partA.respuestas.length === 0 || 
-    !partB.respuestas || partB.respuestas.length === 0) continue
+       if (!partA.respuesta || !partB.respuesta) continue
 
       const compatibilidad = calcularCompatibilidad(
-        partA.respuestas[0],
-        partB.respuestas[0]
-      )  
+        partA.respuesta,
+        partB.respuesta
+      )
 
         totalCompatibilidad += compatibilidad.porcentajeTotal
 
