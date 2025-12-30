@@ -90,7 +90,7 @@ export const authOptions: NextAuthOptions = {
     // Por defecto ir a admin (asumiendo que solo admins hacen login)
     return `${baseUrl}/admin`
   }
-}
+},
 const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
