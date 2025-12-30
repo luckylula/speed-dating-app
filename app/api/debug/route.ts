@@ -29,14 +29,4 @@ export async function GET() {
     }, { status: 500 })
   }
 }
-```
 
-**Commit changes**
-
----
-
-## ⏱️ DESPUÉS DEL DEPLOYMENT:
-
-**Abre:**
-```
-https://speed-dating-app-two.vercel.app/api/debug
