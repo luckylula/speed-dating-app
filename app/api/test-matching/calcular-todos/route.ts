@@ -101,6 +101,9 @@ if (!eventoTest) {
     }
   })
 }
+    await prisma.match.deleteMany({
+  where: { eventoId: eventoTest.id }
+})
 
     // Calcular matches entre todos los pares
     for (let i = 0; i < participantes.length; i++) {
