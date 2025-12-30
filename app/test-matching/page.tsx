@@ -216,7 +216,7 @@ export default function TestMatchingPage() {
         </Card>
 
         {/* SECCIÓN 2 - Resultados */}
-        {resultado && resultado.matches && (
+        {resultado && resultado.matches && resultado.matches.length > 0 && (
           <>
             {/* Resumen Ejecutivo */}
             <Card>
