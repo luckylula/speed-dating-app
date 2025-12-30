@@ -11,11 +11,15 @@ export default function DashboardContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login")
-    }
-  }, [status, router])
+ useEffect(() => {
+  if (status === "unauthenticated") {
+    router.push("/login")
+  }
+  // Redirigir a admin si el rol es admin
+  if (status === "authenticated" && session?.user && (session.user as any).rol === 'admin') {
+    router.push("/admin")
+  }
+}, [status, router, session])
 
   if (status === "loading") {
     return (
